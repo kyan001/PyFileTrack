@@ -8,8 +8,6 @@ import consolecmdtools as cct
 
 
 class Trackfile:
-    __version__ = "0.0.2"
-
     def __init__(self, trackfile_dir: str = os.getcwd(), prefix: str = "FileTrack-", format: str = "json", group_by: str = ""):
         """Initialize Trackfile object.
 
@@ -39,26 +37,23 @@ class Trackfile:
         return self.path
 
     @property
-    def hosts(self) -> list:
-        """list of known hosts in trackfile_dir"""
-        trackfile_list = []
-        for filename in os.listdir(self.trackfile_dir):
-            if filename.startswith(self.prefix) and filename.endswith(self.suffix):
-                trackfile_list.append(filename.split("-")[2].split(".")[0])
-        return sorted(list(set(trackfile_list)))
-
-    @property
     def files(self) -> list:
-        trackfile_list = []
-        for filename in os.listdir(self.trackfile_dir):
+        def filename_filter(path: str) -> bool:
+            filename = cct.get_path(path).basename
             if filename.startswith(self.prefix) and filename.endswith(self.suffix):
                 if self.group_by == "host" and (self.hostname not in filename):
-                    continue
-                trackfile_list.append(os.path.join(self.trackfile_dir, filename))
+                    return False
+                if self.group_by == "os" and (os.name not in filename):
+                    return False
+                return True
+            return False
+
+        trackfile_list = cct.get_paths(self.trackfile_dir, filter=filename_filter)
         return sorted(trackfile_list)
 
     @property
     def latest(self) -> str:
+        print(self.files)
         if not self.files:
             return ""
         return self.files[-1]
@@ -83,7 +78,7 @@ class Trackfile:
 
     @property
     def path(self):
-        return os.path.join(self.trackfile_dir, self.filename)
+        return cct.get_path(os.path.join(self.trackfile_dir, self.filename))
 
     def compare_with(self, trackfile: "Trackfile") -> tuple[list, list]:
         trackings_1 = set(self.trackings.items())
@@ -94,8 +89,6 @@ class Trackfile:
     def hostname(self) -> str:
         """Get hostname and check if hostname is new."""
         host = socket.gethostname().replace("-", "").replace(".", "")  # default hostname
-        if host not in self.hosts:
-            cit.warn(f"New hostname `{host}` detected.")
         return host
 
     @cit.as_session("Cleanup Outdated TrackFiles")
@@ -114,7 +107,7 @@ class Trackfile:
 
     @cit.as_session("Saving TrackFile")
     def to_file(self):
-        with open(self.filename, "w", encoding="UTF8") as f:
+        with open(self.path, "w", encoding="UTF8") as f:
             options = {}
             if self.format == "JSON":
                 options = {"indent": 4, "ensure_ascii": False}
@@ -131,12 +124,15 @@ class Trackfile:
         Returns:
             bool: True if successful.
         """
-        if not path or not os.path.isfile(path):
+        if not path:
+            return False
+        path = cct.get_path(path)
+        if not path.is_file:
             cit.warn("No TrackFile loaded.")
             return False
         cit.info(f"Parsing TrackFile `{path}`")
-        with open(path, encoding="UTF8") as f:
-            trackings = self.formatter.loads(f.read())
+        with open(path, encoding="UTF8") as fl:
+            trackings = self.formatter.loads(fl.read())
             cit.info(f"{len(trackings)} entries loaded")
         self.trackings = trackings
         return True

@@ -1,5 +1,7 @@
 import argparse
 
+import consoleiotools as cit
+
 import filetrack
 
 
@@ -16,3 +18,4 @@ def main(assigned_args: list | None = None):
 
 if __name__ == "__main__":
     main()
+    cit.pause()

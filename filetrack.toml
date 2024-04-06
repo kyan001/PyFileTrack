@@ -1,9 +1,25 @@
 [target]  # Configuration for target files. All optional.
-dir = "."  # Target files directory. Which directory to watch and track. Default is current directory.
-exts = ["doc", "md"]  # Target files extensions. What type of files to track. Default is all files.
+dir = "tests"  # Target files directory.
+    # Which directory to watch and track.
+    # Default is the directory of the config file (`.`).
+    # Relative path based on the directory of the config file.
+exts = ["py", "toml", "md"]  # Target files extensions.
+    # What type of files to track.
+    # Default is `[]` meaning all files.
 
 [trackfile]  # Configuration for TrackFile, which is used to store the tracking infos.
-dir = "."  # Trackfile directory. Where to store the track file. Default is current directory.
-format = "json"  # Trackfile format. Store the track file in which format. Options: "json", "toml". Default is "json".
-hash = "CRC32"  # Hash algorithm to use. Options: "CRC32", "MD5", "NAME", "PATH", "MTIME". Default is "CRC32".
-group = "host"  # Field to group by. What field to use to group the tracking infos. Options: "host", "os", "". Default is "" meaning no grouping, all tracking files stored in the same file. Mostly used for different machines.
+dir = "tests"  # Trackfile directory.
+    # Where to store the track file.
+    # Default is the directory of the config file (`.`).
+    # Relative path based on the directory of the config file.
+format = "json"  # Trackfile format.
+    # Options: "json", "toml". Default is "json".
+    # Store the track file in which format.
+hash = "CRC32"  # Hash algorithm to use.
+    # Options: "CRC32", "MD5", "NAME", "PATH", "MTIME".
+    # Default is "CRC32".
+group_by = "host"  # Field to group by.
+    # What field to use to group the tracking infos.
+    # Options: "host", "os", "".
+    # Default is "" meaning no grouping, all tracking files stored in the same file.
+    # Mostly used for different machines.

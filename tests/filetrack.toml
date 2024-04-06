@@ -6,5 +6,5 @@ exts = ["py"]
 dir = "."
 format = "json"
 hash = "CRC32"
-group = "host"
+group_by = "host"
 prefix = "TestTrackFile-"
