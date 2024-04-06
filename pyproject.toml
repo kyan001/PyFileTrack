@@ -37,7 +37,7 @@ py-modules = ["filetrack"]
 [tool.setuptools.dynamic]
 version = {attr = "filetrack.__version__"}
 dependencies = {file = "requirements.txt"}
-optional-dependencies = {dev = {file = "requirements-dev.txt"}}
+optional-dependencies = {dev = {file = "requirements-dev.txt"}, opt = {file = "requirements-opt.txt"}}
 
 [tool.setuptools.packages.find]
 exclude = ["contrib", "docs", "tests"]

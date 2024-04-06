@@ -1,0 +1,10 @@
+[target]
+dir = "."
+exts = ["py"]
+
+[trackfile]
+dir = "."
+format = "json"
+hash = "CRC32"
+group = "host"
+prefix = "TestTrackFile-"

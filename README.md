@@ -10,6 +10,9 @@
 pip install filetrack  # Install
 
 filetrack  # Run FileTrack according filetrack.toml in current folder.
+filetrack -h/--help  # Show help message.
+filetrack -v/--version  # Show version.
+filetrack -c/--config $config_file  # Run FileTrack according to the config file.
 ```
 
 ## Installation
@@ -34,11 +37,6 @@ pipx uninstall filetrack  # uninstall filetrack through pipx
 
 * Trackings: File hashes to track changes.
 * TrackFile: The output file to hold file trackings.
-* File Exts: Files that you wanna track with specific extensions. As a list, must have at least 1 value (`["mp3",]`）
 * TrackFile Format: Can choose from `TOML` or `JSON`
+* Target File Exts: Files that you wanna track with specific extensions. Leave it empty `[]` or `["*"]` to track all files.
 * Old TrackFile: Autodetect and parse old TrackFile to compared with.
-* Usage:
-  * Dir: Always using current folder as root folder.
-  * New file: Generate a new file list.
-  * Double-click on the script: Detect old list file by prefix and suffix.
-  * Drag a list file: Using drag & drop file list as the old list file.
