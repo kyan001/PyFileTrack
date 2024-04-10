@@ -8,14 +8,14 @@ exts = ["py", "toml", "md"]  # Target files extensions.
     # Default is `[]` meaning all files.
 
 [trackfile]  # Configuration for TrackFile, which is used to store the tracking infos.
-dir = "tests"  # Trackfile directory.
+dir = "tests"  # TrackFile directory.
     # Where to store the track file.
     # Default is the directory of the config file (`.`).
     # Relative path based on the directory of the config file.
-format = "json"  # Trackfile format.
+format = "json"  # TrackFile format.
     # Options: "json", "toml". Default is "json".
     # Store the track file in which format.
-hash = "CRC32"  # Hash algorithm to use.
+hash_mode = "CRC32"  # Hash algorithm to use.
     # Options: "CRC32", "MD5", "NAME", "PATH", "MTIME".
     # Default is "CRC32".
 group_by = "host"  # Field to group by.
@@ -23,3 +23,6 @@ group_by = "host"  # Field to group by.
     # Options: "host", "os", "".
     # Default is "" meaning no grouping, all tracking files stored in the same file.
     # Mostly used for different machines.
+prefix = "FileTrack-"  # Prefix in the TrackFile filename.
+    # The start of the TrackFile filename.
+    # Default is "FileTrack-".

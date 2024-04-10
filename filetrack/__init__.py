@@ -8,26 +8,51 @@ import consoleiotools as cit
 from . import Trackfile
 
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 
-def get_configs(config_path: str = "filetrack.toml") -> dict:
+def load_configs(config_path: str, target_dir: str, target_exts: list[str], trackfile_dir: str, trackfile_format: str, hash_mode: str, group_by: str) -> dict:
     """Get configurations from the config file.
 
     Args:
         config_path (str, optional): The path or the file name of the config file. Defaults to "filetrack.toml".
 
     Returns:
-        dict: The configurations.
-
-    Raises:
-        FileNotFoundError: If the config file is not found.
+        dict: The configurations. If the file does not exist, return an empty dict.
     """
-    if os.path.isfile(config_path):
-        with open(config_path, "rb") as fl:
-            config = tomllib.load(fl)
-        return config
-    raise FileNotFoundError(f"Config file not found at {config_path}")
+    configs = {}
+    if config_path:
+        if os.path.isfile(config_path):
+            with open(config_path, "rb") as fl:
+                configs = tomllib.load(fl)
+        else:
+            cit.warn(f"Config file not found: [u]{config_path}[/]")
+    # [target] defaults
+    if not configs.get("target"):
+        configs['target'] = {}
+    if not configs["target"].get("dir"):
+        configs['target']['dir'] = target_dir
+    if not os.path.isabs(configs['target']['dir']):
+        configs['target']['dir'] = os.path.join(cct.get_path(config_path).parent, configs['target']['dir'])
+    configs['target']['dir'] = cct.get_path(configs['target']['dir'])
+    if not configs['target'].get("exts"):
+        configs['target']['exts'] = target_exts
+    # [trackfile] defaults
+    if not configs.get("trackfile"):
+        configs['trackfile'] = {}
+    configs['trackfile']['dir'] = configs['trackfile'].get("dir") or trackfile_dir
+    if not os.path.isabs(configs['trackfile']['dir']):
+        configs['trackfile']['dir'] = os.path.join(cct.get_path(config_path).parent, configs['trackfile']['dir'])
+    configs['trackfile']['dir'] = cct.get_path(configs['trackfile']['dir'])
+    if not configs['trackfile'].get("format"):
+        configs['trackfile']['format'] = trackfile_format
+    if not configs['trackfile'].get("hash_mode"):
+        configs['trackfile']['hash_mode'] = hash_mode
+    if not configs['trackfile'].get("group_by"):
+        configs['trackfile']['group_by'] = group_by
+    if not configs['trackfile'].get("prefix"):
+        configs['trackfile']['prefix'] = "FileTrack-"
+    return configs
 
 
 def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
@@ -67,7 +92,7 @@ def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
     return True
 
 
-def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", target_exts: list[str] = ["mp3", "m4a"], trackfile_dir: str = ".", trackfile_format: str = "json", hash_mode: str = "CRC32", group_by: str = ""):
+def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", target_exts: list[str] = ["*",], trackfile_dir: str = ".", trackfile_format: str = "json", hash_mode: str = "CRC32", group_by: str = ""):
     """Run filetrack
 
     Args:
@@ -79,39 +104,25 @@ def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", ta
         hash_mode (str, optional): The hash mode. Defaults to "CRC32". Options: "CRC32", "MD5", "NAME", "PATH", "MTIME".
         group_by (str, optional): Group by. Defaults to "". Options: "host", "os", "".
     """
-    cit.rule("▶ [yellow]Run Filetrack")
-    configs = get_configs(config_path)
-    if target_configs := configs.get("target"):
-        target_dir = target_configs.get("dir") or target_dir
-        if not os.path.isabs(target_dir):
-            target_dir = os.path.join(cct.get_path(config_path).parent, target_dir)
-        target_exts = target_configs.get("exts") or target_exts
-    if trackfile_configs := configs.get("trackfile"):
-        trackfile_dir = trackfile_configs.get("dir") or trackfile_dir
-        if not os.path.isabs(trackfile_dir):
-            trackfile_dir = os.path.join(cct.get_path(config_path).parent, trackfile_dir)
-        trackfile_format = trackfile_configs.get("format") or trackfile_format
-        hash_mode = trackfile_configs.get("hash_mode") or hash_mode
-        group_by = trackfile_configs.get("group_by") or group_by
-        trackfile_prefix = trackfile_configs.get("prefix") or "FileTrack-"
-    target_dir = cct.get_path(target_dir)
-    trackfile_dir = cct.get_path(trackfile_dir)
-    old_ft = Trackfile.Trackfile(trackfile_dir=trackfile_dir, prefix=trackfile_prefix, format=trackfile_format, group_by=group_by)
-    new_ft = Trackfile.Trackfile(trackfile_dir=trackfile_dir, prefix=trackfile_prefix, format=trackfile_format, group_by=group_by)
+    cit.rule("▶ [yellow]Run Filetrack[/]")
+    configs = load_configs(config_path, target_dir, target_exts, trackfile_dir, trackfile_format, hash_mode, group_by)
+    old_ft = Trackfile.Trackfile(trackfile_dir=configs['trackfile']['dir'], prefix=configs['trackfile']['prefix'], format=configs['trackfile']['format'], group_by=configs['trackfile']['group_by'])
+    new_ft = Trackfile.Trackfile(trackfile_dir=configs['trackfile']['dir'], prefix=configs['trackfile']['prefix'], format=configs['trackfile']['format'], group_by=configs['trackfile']['group_by'])
     cit.info(f"Version: {__version__}")
-    cit.info(f"Config File: 📜 [u]{config_path}[/]")
-    cit.info(f"Trackfile Dir: 📂 [u]{trackfile_dir}[/]")
-    cit.info(f"Trackfile Format: 📜 {trackfile_format}")
-    cit.info(f"Target Dir: 📂 [u]{target_dir}[/]")
-    cit.info(f"Target Extensions: 📜 {target_exts}")
-    cit.info(f"Hash Mode: 🧮 {hash_mode}")
-    if group_by == "host":
-        cit.info(f"Group by hostname: 💻 {new_ft.hostname}")
-    elif group_by == "os":
-        cit.info(f"Group by OS: 🖥️ {os.name}")
+    cit.info(f"Config File: [u]{config_path}[/]")
+    cit.info(f"Target Dir: 📂 [u]{configs['target']['dir']}[/]")
+    cit.info(f"Target Extensions: {configs['target']['exts']}")
+    cit.info(f"Trackfile Format: {configs['trackfile']['format']}")
+    cit.info(f"Trackfile Dir: 📂 [u]{configs['trackfile']['dir']}[/]")
+    cit.info(f"Trackfile Prefix: `{configs['trackfile']['prefix']}`")
+    cit.info(f"Hash Mode: {configs['trackfile']['hash_mode']}")
+    if configs['trackfile']['group_by'] == "host":
+        cit.info(f"Group by hostname: `{new_ft.hostname}`")
+    elif configs['trackfile']['group_by'] == "os":
+        cit.info(f"Group by OS: `{os.name}`")
     # fill trackings
     old_ft.from_file(old_ft.latest)
-    new_ft.generate(target_dir, target_exts, hash_mode)
+    new_ft.generate(configs['target']['dir'], configs['target']['exts'], configs['trackfile']['hash_mode'])
     if not old_ft.trackings or diffs(old_ft, new_ft):
         cit.info("[Done]")
         new_ft.to_file()

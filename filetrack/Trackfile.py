@@ -53,7 +53,6 @@ class Trackfile:
 
     @property
     def latest(self) -> str:
-        print(self.files)
         if not self.files:
             return ""
         return self.files[-1]
@@ -94,8 +93,8 @@ class Trackfile:
     @cit.as_session("Cleanup Outdated TrackFiles")
     def cleanup_outdated_trackfiles(self):
         if len(self.files) > 1:
-            old_trackfiles = self.latest
-            cit.ask("Cleanup old TrackFiles?")
+            old_trackfiles = self.files[:-1]  # exclude the latest one
+            cit.ask(f"Cleanup {len(old_trackfiles)} old TrackFiles?")
             for trackfile in old_trackfiles:
                 cit.echo(cct.get_path(trackfile).basename, pre="*")
             if cit.get_choice(["Yes", "No"]) == "Yes":
@@ -112,7 +111,7 @@ class Trackfile:
             if self.format == "JSON":
                 options = {"indent": 4, "ensure_ascii": False}
             f.write(self.formatter.dumps(self.trackings, **options))
-            cit.info(f"New TrackFile created: [u]{self.path}[/]")
+            cit.info(f"New TrackFile created: [u]{self.path.basename}[/]")
 
     @cit.as_session("Loading Old TrackFile")
     def from_file(self, path: str) -> bool:
@@ -130,7 +129,7 @@ class Trackfile:
         if not path.is_file:
             cit.warn("No TrackFile loaded.")
             return False
-        cit.info(f"Parsing TrackFile `{path}`")
+        cit.info(f"Parsing TrackFile `{path.basename}`")
         with open(path, encoding="UTF8") as fl:
             trackings = self.formatter.loads(fl.read())
             cit.info(f"{len(trackings)} entries loaded")
@@ -138,7 +137,7 @@ class Trackfile:
         return True
 
     @cit.as_session("Generating New TrackFile")
-    def generate(self, target_dir: str = os.getcwd(), exts: list = [], hash_mode: str = "CRC32"):
+    def generate(self, target_dir: str = os.getcwd(), exts: list = ["*",], hash_mode: str = "CRC32"):
         """Generate file tracking information.
 
         Args:
@@ -150,23 +149,23 @@ class Trackfile:
             dict: {filename: filehash}
         """
         paths = []
-        if not exts:
-            exts = ["*",]
         for ext in exts:
             target_file_pattern = f"*.{ext}"
             cit.info(f"Target file pattern: {target_file_pattern}")
             paths += list(pathlib.Path(target_dir).rglob(target_file_pattern))
-        for filepath in cit.track(paths, "Hashing...", unit="files"):
-            if hash_mode == "CRC32":
-                filehash = cct.crc32(filepath)
-            elif hash_mode == "MTIME":
-                filehash = int(os.path.getmtime(filepath))
-            elif hash_mode == "NAME":
-                filehash = os.path.basename(filepath)
-            elif hash_mode == "PATH":
-                filehash = filepath
-            elif hash_mode == "MD5":
-                filehash = cct.md5(filepath)
-            else:
-                filehash = None
-            self.trackings[os.path.basename(filepath)] = filehash
+        cit.info(f"Found {len(paths)} target files")
+        if paths:
+            for filepath in cit.track(paths, "Hashing...", unit="files"):
+                if hash_mode == "CRC32":
+                    filehash = cct.crc32(filepath)
+                elif hash_mode == "MTIME":
+                    filehash = int(os.path.getmtime(filepath))
+                elif hash_mode == "NAME":
+                    filehash = os.path.basename(filepath)
+                elif hash_mode == "PATH":
+                    filehash = filepath
+                elif hash_mode == "MD5":
+                    filehash = cct.md5(filepath)
+                else:
+                    filehash = None
+                self.trackings[os.path.basename(filepath)] = filehash
