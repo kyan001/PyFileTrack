@@ -1,6 +1,5 @@
 import os
 import socket
-import pathlib
 import datetime
 
 import consoleiotools as cit
@@ -136,8 +135,28 @@ class Trackfile:
         self.trackings = trackings
         return True
 
+    def target_files(self, target_dir: str = os.getcwd(), exts: list = []) -> list:
+        """Get target files in the target directory.
+
+        Args:
+            target_dir (str): Target directory to scan.
+            exts (list[str]): Accepted file extensions. Ex. ["mp3", "m4a"]. Default is [] meaning all files.
+
+        Returns:
+            list: List of target file paths.
+        """
+        paths = []
+        if not exts:
+            paths += cct.get_paths(target_dir, filter=os.path.isfile)
+        else:
+            for ext in exts:
+                target_file_pattern = f".{ext}"
+                cit.info(f"Target file pattern: {target_file_pattern}")
+                paths += cct.get_paths(target_dir, filter=lambda path: path.name.endswith(target_file_pattern))
+        return paths
+
     @cit.as_session("Generating New TrackFile")
-    def generate(self, target_dir: str = os.getcwd(), exts: list = ["*",], hash_mode: str = "CRC32"):
+    def generate(self, target_dir: str = os.getcwd(), exts: list = [], hash_mode: str = "CRC32"):
         """Generate file tracking information.
 
         Args:
@@ -148,24 +167,46 @@ class Trackfile:
         Returns:
             dict: {filename: filehash}
         """
-        paths = []
-        for ext in exts:
-            target_file_pattern = f"*.{ext}"
-            cit.info(f"Target file pattern: {target_file_pattern}")
-            paths += list(pathlib.Path(target_dir).rglob(target_file_pattern))
-        cit.info(f"Found {len(paths)} target files")
-        if paths:
-            for filepath in cit.track(paths, "Hashing...", unit="files"):
-                if hash_mode == "CRC32":
-                    filehash = cct.crc32(filepath)
-                elif hash_mode == "MTIME":
-                    filehash = int(os.path.getmtime(filepath))
-                elif hash_mode == "NAME":
-                    filehash = os.path.basename(filepath)
-                elif hash_mode == "PATH":
-                    filehash = filepath
-                elif hash_mode == "MD5":
-                    filehash = cct.md5(filepath)
+        def find_duplicates(paths: list) -> list:
+            """Find duplicate filename files in the list of paths.
+
+            Returns:
+                list: List of duplicate filepaths.
+            """
+            duplicate_files = set()
+            files = {}
+            for filepath in paths:
+                filepath = cct.get_path(filepath)
+                if path := files.get(filepath.basename):
+                    duplicate_files.add(path)
+                    duplicate_files.add(filepath)
                 else:
-                    filehash = None
-                self.trackings[os.path.basename(filepath)] = filehash
+                    files[filepath.basename] = filepath
+            return list(duplicate_files)
+
+        paths = self.target_files(target_dir, exts)
+        cit.info(f"Target files: {len(paths)}")
+        if paths:
+            duplicate_files = find_duplicates(paths)
+            cit.info(f"Duplicate files: {len(duplicate_files)}")
+            for filepath in cit.track(paths, "Hashing...", unit="files"):
+                filepath = cct.get_path(filepath)
+                match hash_mode.lower():
+                    case "crc32":
+                        filehash = cct.crc32(filepath)
+                    case "md5":
+                        filehash = cct.md5(filepath)
+                    case "mtime":
+                        filehash = int(os.path.getmtime(filepath))
+                    case "name":
+                        filehash = filepath.basename
+                    case "path":
+                        filehash = filepath.abs
+                    case _:
+                        cit.err(f"Unsupported hash mode: {hash_mode}")
+                        cit.bye()
+                filehash = str(filehash)
+                if oldhash := self.trackings.get(filepath.basename):
+                    self.trackings[filepath.basename] = ",".join([oldhash, filehash])
+                else:
+                    self.trackings[filepath.basename] = filehash

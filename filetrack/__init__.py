@@ -8,7 +8,7 @@ import consoleiotools as cit
 from . import Trackfile
 
 
-__version__ = '0.0.6'
+__version__ = '0.0.8'
 
 
 def load_configs(config_path: str, target_dir: str, target_exts: list[str], trackfile_dir: str, trackfile_format: str, hash_mode: str, group_by: str) -> dict:
@@ -92,7 +92,7 @@ def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
     return True
 
 
-def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", target_exts: list[str] = ["*",], trackfile_dir: str = ".", trackfile_format: str = "json", hash_mode: str = "CRC32", group_by: str = ""):
+def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", target_exts: list[str] = [], trackfile_dir: str = ".", trackfile_format: str = "json", hash_mode: str = "CRC32", group_by: str = ""):
     """Run filetrack
 
     Args:

@@ -38,5 +38,5 @@ pipx uninstall filetrack  # uninstall filetrack through pipx
 * Trackings: File hashes to track changes.
 * TrackFile: The output file to hold file trackings.
 * TrackFile Format: Can choose from `TOML` or `JSON`
-* Target File Exts: Files that you wanna track with specific extensions. Leave it empty `[]` or `["*"]` to track all files.
+* Target File Exts: Files that you wanna track with specific extensions. Leave it empty `[]` to track all files.
 * Old TrackFile: Autodetect and parse old TrackFile to compared with.
