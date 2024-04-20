@@ -1,6 +1,7 @@
 import os
 import socket
 import datetime
+import platform
 
 import consoleiotools as cit
 import consolecmdtools as cct
@@ -40,9 +41,7 @@ class Trackfile:
         def filename_filter(path: str) -> bool:
             filename = cct.get_path(path).basename
             if filename.startswith(self.prefix) and filename.endswith(self.suffix):
-                if self.group_by == "host" and (self.hostname not in filename):
-                    return False
-                if self.group_by == "os" and (os.name not in filename):
+                if self.group_by and (self.group not in filename):
                     return False
                 return True
             return False
@@ -57,17 +56,14 @@ class Trackfile:
         return self.files[-1]
 
     @property
-    def group(self):
-        match self.group_by:
-            case "host":
-                return self.hostname
-            case "os":
-                return os.name
-            case "":
-                return ""
-            case _:
-                cit.err(f"Unsupported group_by: {self.group_by}")
-                cit.bye()
+    def group(self) -> str:
+        if self.group_by == "host":
+            return self.hostname
+        elif self.group_by == "os":
+            return platform.system()
+        elif self.group_by == "":
+            return ""
+        raise ValueError(f"Unsupported group_by: {self.group_by}")
 
     @property
     def filename(self):

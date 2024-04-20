@@ -116,10 +116,8 @@ def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", ta
     cit.info(f"Trackfile Dir: 📂 [u]{configs['trackfile']['dir']}[/]")
     cit.info(f"Trackfile Prefix: `{configs['trackfile']['prefix']}`")
     cit.info(f"Hash Mode: {configs['trackfile']['hash_mode']}")
-    if configs['trackfile']['group_by'] == "host":
-        cit.info(f"Group by hostname: `{new_ft.hostname}`")
-    elif configs['trackfile']['group_by'] == "os":
-        cit.info(f"Group by OS: `{os.name}`")
+    if configs['trackfile']['group_by']:
+        cit.info(f"Group by {configs['trackfile']['group_by']}: `{new_ft.group}`")
     # fill trackings
     old_ft.from_file(old_ft.latest)
     new_ft.generate(configs['target']['dir'], configs['target']['exts'], configs['trackfile']['hash_mode'])
