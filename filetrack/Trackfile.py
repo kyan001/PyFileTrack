@@ -63,7 +63,8 @@ class Trackfile:
             return platform.system()
         elif self.group_by == "":
             return ""
-        raise ValueError(f"Unsupported group_by: {self.group_by}")
+        cit.err(f"Unsupported group_by: {self.group_by}")
+        exit(1)
 
     @property
     def filename(self):
@@ -200,7 +201,7 @@ class Trackfile:
                         filehash = filepath.abs
                     case _:
                         cit.err(f"Unsupported hash mode: {hash_mode}")
-                        cit.bye()
+                        exit(1)
                 filehash = str(filehash)
                 if oldhash := self.trackings.get(filepath.basename):
                     self.trackings[filepath.basename] = ",".join([oldhash, filehash])

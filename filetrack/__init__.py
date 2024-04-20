@@ -8,7 +8,7 @@ import consoleiotools as cit
 from . import Trackfile
 
 
-__version__ = '0.0.9'
+__version__ = '0.0.10'
 
 
 def load_configs(config_path: str, target_dir: str, target_exts: list[str], trackfile_dir: str, trackfile_format: str, hash_mode: str, group_by: str) -> dict:
