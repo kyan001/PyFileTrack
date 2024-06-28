@@ -9,7 +9,7 @@
 ```sh
 pip install filetrack  # Install
 
-filetrack  # Run FileTrack according filetrack.toml in current folder.
+filetrack  # Run FileTrack according `filetrack.toml` in current folder.
 filetrack -h/--help  # Show help message.
 filetrack -v/--version  # Show version.
 filetrack -c/--config $config_file  # Run FileTrack according to the config file.
