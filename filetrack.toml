@@ -1,38 +1,38 @@
-[target]  # [Optional]
+[target]  # Optional
     # Configuration for target files.
-dir = "tests"  # [Optional]
+dir = "tests"  # Optional
     # Target files directory.
     # Which directory to watch and track.
     # Default is the directory of the config file (`.`).
     # Relative path based on the directory of the config file.
-exts = ["py", "toml", "md"]  # [Optional]
+exts = ["py", "toml", "md"]  # Optional
     # Target files extensions.
     # What type of files to track.
     # Default is `[]` meaning all files.
 
-[trackfile]  # [Optional]
+[trackfile]  # Optional
     # Configuration for TrackFile, which is used to store the tracking infos.
-dir = "tests"  # [Optional]
+dir = "tests"  # Optional
     # TrackFile directory.
     # Where to store the track file.
     # Default is the directory of the config file (`.`).
     # Relative path based on the directory of the config file.
-format = "json"  # [Optional]
+format = "json"  # Optional
     # TrackFile format.
     # Options: "json", "toml".
     # Default is "json".
     # Store the track file in which format.
-hash_mode = "CRC32"  # [Optional]
+hash_mode = "CRC32"  # Optional
     # Hash algorithm to use.
     # Options: "CRC32", "MD5", "NAME", "PATH", "MTIME".
     # Default is "CRC32".
-group_by = "host"  # [Optional]
+group_by = "host"  # Optional
     # Field to group by.
     # What field to use to group the tracking infos.
     # Options: "host", "os", "".
     # Default is "" meaning no grouping, all tracking files stored in the same file.
     # Mostly used for different machines.
-prefix = "FileTrack-"  # [Optional]
+prefix = "FileTrack-"  # Optional
     # Prefix in the TrackFile filename.
     # The start of the TrackFile filename.
     # Default is "FileTrack-".
