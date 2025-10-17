@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "filetrack"
 description = "Tracking file changes according to the record file."
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 readme = "README.md"
 keywords = ["python3", "file", "track", "cli"]
 license = {file = "LICENSE"}
