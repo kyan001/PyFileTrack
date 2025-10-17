@@ -1,5 +1,6 @@
 import os
 import tomllib
+from typing import Any
 
 import fuzzyfinder
 import consolecmdtools as cct
@@ -11,7 +12,7 @@ from . import Trackfile
 __version__ = '0.0.10'
 
 
-def load_configs(config_path: str, target_dir: str, target_exts: list[str], trackfile_dir: str, trackfile_format: str, hash_mode: str, group_by: str) -> dict:
+def load_configs(config_path: str, target_dir: str, target_exts: list[str], trackfile_dir: str, trackfile_format: str, hash_mode: str, group_by: str) -> dict[str, Any]:
     """Get configurations from the config file.
 
     Args:
@@ -20,7 +21,7 @@ def load_configs(config_path: str, target_dir: str, target_exts: list[str], trac
     Returns:
         dict: The configurations. If the file does not exist, return an empty dict.
     """
-    configs = {}
+    configs: dict[str, Any] = {}
     if config_path:
         if os.path.isfile(config_path):
             with open(config_path, "rb") as fl:
@@ -59,13 +60,13 @@ def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
     """Check if there are any differences between the old and new trackfiles.
 
     Args:
-        old_ft (Filetrack.Trackfile): The old trackfile.
-        new_ft (Filetrack.Trackfile): The new trackfile.
+        old_ft (Trackfile.Trackfile): The old trackfile.
+        new_ft (Trackfile.Trackfile): The new trackfile.
 
     Returns:
         bool: True if there are differences, False otherwise.
     """
-    pres = {
+    pres: dict[str, str] = {
         "delete": "[red]-[/]",
         "add": "[green]+[/]",
         "move_from": "[blue]-[/]",
@@ -92,7 +93,7 @@ def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
     return True
 
 
-def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", target_exts: list[str] = [], trackfile_dir: str = ".", trackfile_format: str = "json", hash_mode: str = "CRC32", group_by: str = ""):
+def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", target_exts: list[str] = [], trackfile_dir: str = ".", trackfile_format: str = "json", hash_mode: str = "CRC32", group_by: str = "") -> None:
     """Run filetrack
 
     Args:

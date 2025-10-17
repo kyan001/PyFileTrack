@@ -2,13 +2,14 @@ import os
 import socket
 import datetime
 import platform
+from typing import Any
 
 import consoleiotools as cit
 import consolecmdtools as cct
 
 
 class Trackfile:
-    def __init__(self, trackfile_dir: str = os.getcwd(), prefix: str = "FileTrack-", format: str = "json", group_by: str = ""):
+    def __init__(self, trackfile_dir: str = os.getcwd(), prefix: str = "FileTrack-", format: str = "json", group_by: str = "") -> None:
         """Initialize Trackfile object.
 
         Args:
@@ -17,12 +18,13 @@ class Trackfile:
             format (str): The output format. Options: "json", "toml".
             group_by (str): Group by. Default is "" meaning no group. Options: "host", "os", "".
         """
-        self.prefix = prefix
-        self.trackfile_dir = trackfile_dir
-        self.format = format
+        self.prefix: str = prefix
+        self.trackfile_dir: str = trackfile_dir
+        self.format: str = format
+        self.formatter: Any
         if self.format.upper() == "TOML":
             import tomlkit  # lazyload
-            self.suffix = ".toml"
+            self.suffix: str = ".toml"
             self.formatter = tomlkit
         elif self.format.upper() == "JSON":
             import json  # lazyload
@@ -30,14 +32,14 @@ class Trackfile:
             self.formatter = json
         else:
             raise Exception(f"Output format `{self.format}` does not support")
-        self.group_by = group_by
-        self.trackings = {}
+        self.group_by: str = group_by
+        self.trackings: dict[str, str] = {}
 
     def __str__(self) -> str:
-        return self.path
+        return str(self.path)
 
     @property
-    def files(self) -> list:
+    def files(self) -> list[str]:
         def filename_filter(path: str) -> bool:
             filename = cct.get_path(path).basename
             if filename.startswith(self.prefix) and filename.endswith(self.suffix):
@@ -67,15 +69,15 @@ class Trackfile:
         exit(1)
 
     @property
-    def filename(self):
+    def filename(self) -> str:
         now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         return f"{self.prefix}{now}{'-' if self.group else ''}{self.group}{self.suffix}"
 
     @property
-    def path(self):
+    def path(self) -> Any:
         return cct.get_path(os.path.join(self.trackfile_dir, self.filename))
 
-    def compare_with(self, trackfile: "Trackfile") -> tuple[list, list]:
+    def compare_with(self, trackfile: "Trackfile") -> tuple[list[str], list[str]]:
         trackings_1 = set(self.trackings.items())
         trackings_2 = set(trackfile.trackings.items())
         return [filename for filename, filehash in trackings_1 - trackings_2], [filename for filename, filehash in trackings_2 - trackings_1]
@@ -87,7 +89,7 @@ class Trackfile:
         return host
 
     @cit.as_session("Cleanup Outdated TrackFiles")
-    def cleanup_outdated_trackfiles(self):
+    def cleanup_outdated_trackfiles(self) -> None:
         if len(self.files) > 1:
             old_trackfiles = self.files[:-1]  # exclude the latest one
             cit.ask(f"Cleanup {len(old_trackfiles)} old TrackFiles?")
@@ -101,9 +103,9 @@ class Trackfile:
                 cit.warn("Cleanup canceled")
 
     @cit.as_session("Saving TrackFile")
-    def to_file(self):
+    def to_file(self) -> None:
         with open(self.path, "w", encoding="UTF8") as f:
-            options = {}
+            options: dict[str, Any] = {}
             if self.format == "JSON":
                 options = {"indent": 4, "ensure_ascii": False}
             f.write(self.formatter.dumps(self.trackings, **options))
@@ -121,18 +123,18 @@ class Trackfile:
         """
         if not path:
             return False
-        path = cct.get_path(path)
-        if not path.is_file:
+        path_obj = cct.get_path(path)
+        if not path_obj.is_file:
             cit.warn("No TrackFile loaded.")
             return False
-        cit.info(f"Parsing TrackFile `{path.basename}`")
-        with open(path, encoding="UTF8") as fl:
+        cit.info(f"Parsing TrackFile `{path_obj.basename}`")
+        with open(path_obj, encoding="UTF8") as fl:
             trackings = self.formatter.loads(fl.read())
             cit.info(f"{len(trackings)} entries loaded")
         self.trackings = trackings
         return True
 
-    def target_files(self, target_dir: str = os.getcwd(), exts: list = []) -> list:
+    def target_files(self, target_dir: str = os.getcwd(), exts: list[str] = []) -> list[str]:
         """Get target files in the target directory.
 
         Args:
@@ -142,7 +144,7 @@ class Trackfile:
         Returns:
             list: List of target file paths.
         """
-        paths = []
+        paths: list[str] = []
         if not exts:
             paths += cct.get_paths(target_dir, filter=os.path.isfile)
         else:
@@ -153,7 +155,7 @@ class Trackfile:
         return paths
 
     @cit.as_session("Generating New TrackFile")
-    def generate(self, target_dir: str = os.getcwd(), exts: list = [], hash_mode: str = "CRC32"):
+    def generate(self, target_dir: str = os.getcwd(), exts: list[str] = [], hash_mode: str = "CRC32") -> None:
         """Generate file tracking information.
 
         Args:
@@ -164,14 +166,14 @@ class Trackfile:
         Returns:
             dict: {filename: filehash}
         """
-        def find_duplicates(paths: list) -> list:
+        def find_duplicates(paths: list[str]) -> list[str]:
             """Find duplicate filename files in the list of paths.
 
             Returns:
                 list: List of duplicate filepaths.
             """
-            duplicate_files = set()
-            files = {}
+            duplicate_files: set[Any] = set()
+            files: dict[str, Any] = {}
             for filepath in paths:
                 filepath = cct.get_path(filepath)
                 if path := files.get(filepath.basename):
