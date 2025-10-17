@@ -153,13 +153,13 @@ class Trackfile:
         return paths
 
     @cit.as_session("Generating New TrackFile")
-    def generate(self, target_dir: str = os.getcwd(), exts: list = [], hash_mode: str = "CRC32"):
+    def generate(self, target_dir: str = os.getcwd(), exts: list = [], hash_mode: str = "HASH"):
         """Generate file tracking information.
 
         Args:
             target_dir (str): Target directory to scan.
             exts (list[str]): Accepted file extensions. Ex. ["mp3", "m4a"]. Default is [] meaning all files.
-            hash_mode (str): "CRC32", "MD5", "NAME", "PATH", "MTIME".
+            hash_mode (str): "HASH", "CRC32", "MD5", "NAME", "PATH", "MTIME".
 
         Returns:
             dict: {filename: filehash}
@@ -188,7 +188,9 @@ class Trackfile:
             cit.info(f"Duplicate files: {len(duplicate_files)}")
             for filepath in cit.track(paths, "Hashing...", unit="files"):
                 filepath = cct.get_path(filepath)
-                match hash_mode.lower():
+                match hash_mode.lower():  # >=3.10
+                    case "hash":
+                        filehash = abs(hash(filepath))
                     case "crc32":
                         filehash = cct.crc32(filepath)
                     case "md5":

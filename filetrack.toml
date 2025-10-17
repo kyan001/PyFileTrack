@@ -22,10 +22,10 @@ format = "json"  # Optional
     # Options: "json", "toml".
     # Default is "json".
     # Store the track file in which format.
-hash_mode = "CRC32"  # Optional
+hash_mode = "HASH"  # Optional
     # Hash algorithm to use.
-    # Options: "CRC32", "MD5", "NAME", "PATH", "MTIME".
-    # Default is "CRC32".
+    # Options: "HASH", "CRC32", "MD5", "NAME", "PATH", "MTIME".
+    # Default is "HASH".
 group_by = "host"  # Optional
     # Field to group by.
     # What field to use to group the tracking infos.

@@ -5,6 +5,6 @@ exts = ["py"]
 [trackfile]
 dir = "."
 format = "json"
-hash_mode = "CRC32"
+hash_mode = "HASH"
 group_by = "host"
 prefix = "TestTrackFile-"
