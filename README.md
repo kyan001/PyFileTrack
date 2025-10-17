@@ -40,3 +40,10 @@ pipx uninstall filetrack  # uninstall filetrack through pipx
 * TrackFile Format: Can choose from `TOML` or `JSON`
 * Target File Exts: Files that you wanna track with specific extensions. Leave it empty `[]` to track all files.
 * Old TrackFile: Autodetect and parse old TrackFile to compared with.
+* Hahs Mode:
+    * `CRC32`: Balance between speed and reliability. Fast and built-in in Python.
+    * `MD5`: Slow but more reliable than CRC32. Build-in in Python.
+    * `XXHASH`: Fast and reliable. Requires external [xxHash](https://github.com/Cyan4973/xxHash) library.
+    * `NAME`: No hashing, just track file names. Useful when only file names matter.
+    * `PATH`: No hashing, just track file paths. Fastest but least reliable.
+    * `MTIME`: Track file modification time. Fast but can be spoofed.

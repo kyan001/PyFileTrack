@@ -8,7 +8,7 @@ import consoleiotools as cit
 from . import Trackfile
 
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 def load_configs(config_path: str, target_dir: str, target_exts: list[str], trackfile_dir: str, trackfile_format: str, hash_mode: str, group_by: str) -> dict:
@@ -92,7 +92,7 @@ def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
     return True
 
 
-def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", target_exts: list[str] = [], trackfile_dir: str = ".", trackfile_format: str = "json", hash_mode: str = "HASH", group_by: str = ""):
+def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", target_exts: list[str] = [], trackfile_dir: str = ".", trackfile_format: str = "json", hash_mode: str = "CRC32", group_by: str = ""):
     """Run filetrack
 
     Args:
@@ -101,7 +101,7 @@ def run_filetrack(config_path: str = "filetrack.toml", target_dir: str = ".", ta
         target_exts (list[str], optional): The target extensions. Defaults to TARGET_EXTS.
         trackfile_dir (str): The directory path of the trackfile. Default is config file's parent directory.
         trackfile_format (str, optional): The output format. Defaults to "json". Options: "json", "toml".
-        hash_mode (str, optional): The hash mode. Defaults to "HASH". Options: "HASH", "CRC32", "MD5", "NAME", "PATH", "MTIME".
+        hash_mode (str, optional): The hash mode. Defaults to "CRC32". Options: "XXHASH", "CRC32", "MD5", "NAME", "PATH", "MTIME".
         group_by (str, optional): Group by. Defaults to "". Options: "host", "os", "".
     """
     cit.rule("▶ [yellow]Run Filetrack[/]")
