@@ -8,7 +8,7 @@ import consoleiotools as cit
 from . import Trackfile
 
 
-__version__ = '0.1.2'
+__version__ = '0.1.5'
 
 
 def load_configs(config_path: str, target_dir: str, target_exts: list[str], trackfile_dir: str, trackfile_format: str, hash_mode: str, group_by: str) -> dict:
@@ -78,15 +78,17 @@ def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
         cit.info("No changes")
         return False
     cit.info("Changes since last time: ✍️")
-    for filename in entries_deleted:
-        if entries_added:
+    for filename in entries_deleted:  # Check every deleted entry
+        if entries_added:  # Search it in added entries to check if it's a move
             fuzzy = list(fuzzyfinder.fuzzyfinder(filename, entries_added))
-            if len(fuzzy) > 0:
+            if len(fuzzy) > 0:  # It's a move (delete with add)
                 cit.echo(f"{pres['move_from']} {filename}")
                 cit.echo(f"{pres['move_to']} {fuzzy[0]}")
                 entries_added.remove(fuzzy[0])
-            else:
+            else:  # It's not a move, just a delete
                 cit.echo(f"{pres['delete']} {filename}")
+        else:  # No added entries, just deletes
+            cit.echo(f"{pres['delete']} {filename}")
     for filename in entries_added:
         cit.echo(f"{pres['add']} {filename}")
     return True
