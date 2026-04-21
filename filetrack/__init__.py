@@ -8,7 +8,7 @@ import consoleiotools as cit
 from . import Trackfile
 
 
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 
 
 def load_configs(config_path: str, target_dir: str, target_exts: list[str], trackfile_dir: str, trackfile_format: str, hash_mode: str, group_by: str) -> dict:
@@ -59,15 +59,15 @@ def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
     """Check if there are any differences between the old and new trackfiles.
 
     Args:
-        old_ft (Filetrack.Trackfile): The old trackfile.
-        new_ft (Filetrack.Trackfile): The new trackfile.
+        old_ft (Trackfile.Trackfile): The old trackfile.
+        new_ft (Trackfile.Trackfile): The new trackfile.
 
     Returns:
         bool: True if there are differences, False otherwise.
     """
     pres = {
-        "move_from": "[blue]-[/]",
-        "move_to": "[blue]+[/]",
+        "delete": " [red]-[/]",
+        "add": " [green]+[/]",
         "move_from": "[dim]╭[/][red]-[/]",
         "move_to": "[dim]╰[/][green]+[/]",
     }
