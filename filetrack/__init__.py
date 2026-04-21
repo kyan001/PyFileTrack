@@ -66,10 +66,10 @@ def diffs(old_ft: Trackfile.Trackfile, new_ft: Trackfile.Trackfile) -> bool:
         bool: True if there are differences, False otherwise.
     """
     pres = {
-        "delete": "[red]-[/]",
-        "add": "[green]+[/]",
         "move_from": "[blue]-[/]",
         "move_to": "[blue]+[/]",
+        "move_from": "[dim]╭[/][red]-[/]",
+        "move_to": "[dim]╰[/][green]+[/]",
     }
     if not old_ft.trackings and not new_ft.trackings:
         return False
